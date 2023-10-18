@@ -30,12 +30,22 @@ app.get("/api/hello", function (req, res) {
 app.get("/api", function(req, res) {
   var today = new Date()
   res.json({
-   "unix": today.getTime(), "utc": today.toUTCString()
+   "unix": today.getTime(), 
+   "utc": today.toUTCString()
   });
 });
 
 app.get("/api/:date_string", function (req, res) {
 let dateString = req.params.date_string;
+
+if (parseInt(dateString) > 10000) {
+  let unixTime = new Date(parseInt(dateString));
+  res.json({
+    "unix": unixTime.getTime(),
+    "utc": unixTime.toUTCString()
+  });
+}
+
 let inputtedValue = new Date(dateString);
 
 if (inputtedValue == "Invalid Date") {

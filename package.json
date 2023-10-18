@@ -1,7 +1,7 @@
 {
-  "name": "fcc-api-projects-boilerplate",
+  "name": "calphius-porfolio-app",
   "version": "0.0.1",
-  "description": "An FCC Backend Challenge",
+  "description": "Calphius FCC Backend Challenge WebApp",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
@@ -12,13 +12,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/freeCodeCamp/boilerplate-project-timestamp.git"
+    "url": "https://github.com/Calphius18/calphius-portfolio-app.git"
   },
   "bugs": {
     "url": "https://github.com/freeCodeCamp/freeCodeCamp/issues"
   },
   "homepage": "https://github.com/freeCodeCamp/boilerplate-project-timestamp#readme",
-  "author": "freeCodeCamp <team@freecodecamp.org>",
+  "author": "Calphius18",
   "keywords": [
     "node",
     "express",

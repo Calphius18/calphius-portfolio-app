@@ -33,7 +33,7 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-app.get("/api/timestamp", function(req, res) {
+app.get("/api", function(req, res) {
   var today = new Date()
   res.json({
    "unix": today.getTime(), 
@@ -41,7 +41,7 @@ app.get("/api/timestamp", function(req, res) {
   });
 });
 
-app.get("/api/timestamp/:date_string", function (req, res) {
+app.get("/api/:date_string", function (req, res) {
 let dateString = req.params.date_string;
 
 if (parseInt(dateString) > 10000) {

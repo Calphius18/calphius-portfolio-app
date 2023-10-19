@@ -33,6 +33,14 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+app.get("/api/whoami", function(req, res){
+  res.json({
+    "ipaddress": req.connection.remoteAddress,
+    "language": req.headers["accept-language"],
+    "software": req.headers["user-agent"]
+  });
+});
+
 app.get("/api", function(req, res) {
   var today = new Date()
   res.json({
@@ -64,11 +72,7 @@ res.json({
 }
 });
 
-app.get("/api/whoami", function(req, res) {
-  res.json({
-    "value": "Results no longer in doubt"
-  });
-});
+
 
 // listen for requests :)
 var listener = app.listen(port, function () {

@@ -2,12 +2,19 @@
 // where your node app starts
 
 // init project
+var database_uri = 'mongodb+srv://Caliphus:Calphius18@urlshortener.puux4pg.mongodb.net/?retryWrites=true&w=majority';
 var express = require('express');
 var app = express();
+var bodyParser = require('body-parser');
+var mongo = require('mongodb');
+var mongoose = require('mongoose');
+var shortid = require('shortid');
 var port = process.env.PORT || 3000;
 
-
-
+mongoose.connect(database_uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
 var cors = require('cors');
 app.use(cors({optionsSuccessStatus: 200}));
 
@@ -27,11 +34,57 @@ app.get("/requestHeaderParser", function (req, res) {
   res.sendFile(__dirname + '/views/requestHeaderParser.html');
 });
 
+app.get("/urlShortenerMicroservice", function (req, res) {
+  res.sendFile(__dirname + '/views/urlShortenerMicroservice.html');
+});
+
 // your first API endpoint... 
 app.get("/api/hello", function (req, res) {
   console.log({greeting: 'hello API'});
   res.json({greeting: 'hello API'});
 });
+
+
+var ShortURL = mongoose.model('ShortURL', new mongoose.Schema({
+  short_url: String,
+  original_url: String,
+  suffix: String
+}));
+
+app.use(bodyParser.urlencoded({ extended: false }))
+
+app.use(bodyParser.json())
+app.post("/api/shorturl", (req, res) => {
+  let client_requested_url = req.body.url
+
+  let suffix = shortid.generate();
+  let newShortURL = suffix
+
+  let newURL = new ShortURL({
+    short_url: __dirname + "/api/shorturl/" + suffix,
+    original_url: client_requested_url,
+    suffix: suffix
+  })
+
+  newURL.save().then(() => {
+    res.json({
+      "saved": true,
+      "short_url": newURL.short_url,
+      "orignal_url": newURL.original_url,
+      "suffix": newURL.suffix
+    });
+  });
+
+});
+
+app.get("/api/shorturl/:suffix", (req, res) => {
+  let userGeneratedSuffix = req.params.suffix;
+  ShortURL.find({suffix: userGeneratedSuffix}).then(foundUrls => {
+    let urlForRedirect = foundUrls[0];
+    res.redirect(urlForRedirect.original_url);
+  });
+});
+
 
 app.get("/api/whoami", function(req, res){
   res.json({
@@ -71,7 +124,6 @@ res.json({
 })
 }
 });
-
 
 
 // listen for requests :)

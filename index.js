@@ -6,20 +6,30 @@ var database_uri = 'mongodb+srv://Caliphus:Calphius18@urlshortener.puux4pg.mongo
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
-var mongo = require('mongodb');
+var { MongoClient } = require('mongodb');
 var mongoose = require('mongoose');
-var shortid = require('shortid');
+const dns = require('dns')
+const urlparser = require('url')
+
+const client = new MongoClient(database_uri)
+const db = client.db("urlshortner")
+const urls = db.collection("urls")
+
+
 var port = process.env.PORT || 3000;
 
 mongoose.connect(database_uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
+
 var cors = require('cors');
 app.use(cors({optionsSuccessStatus: 200}));
 
 // http://expressjs.com/en/starter/static-files.html
 app.use(express.static('public'));
+app.use(express.json())
+app.use(express.urlencoded({extended: true}))
 
 // http://expressjs.com/en/starter/basic-routing.html
 app.get("/", function (req, res) {
@@ -45,45 +55,35 @@ app.get("/api/hello", function (req, res) {
 });
 
 
-var ShortURL = mongoose.model('ShortURL', new mongoose.Schema({
-  short_url: String,
-  original_url: String,
-  suffix: String
-}));
-
 app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use(bodyParser.json())
-app.post("/api/shorturl", (req, res) => {
-  let client_requested_url = req.body.url
+app.post('/api/shorturl', function(req, res) {
+  
+  const url = req.body.url
+  const dnslookup = dns.lookup(urlparser.parse(url).hostname, async (err, address) => {
+    if (!address){
+      res.json({error: "Invalid URL"})
+    } else {
 
-  let suffix = shortid.generate();
-  let newShortURL = suffix
+      const urlCount = await urls.countDocuments({})
+      const urlDoc = {
+        url,
+        short_url: urlCount
+      }
 
-  let newURL = new ShortURL({
-    short_url: __dirname + "/api/shorturl/" + suffix,
-    original_url: client_requested_url,
-    suffix: suffix
+      const result = await urls.insertOne(urlDoc)
+      res.json({ original_url: url, short_url: urlCount })
+      
+    }
   })
-
-  newURL.save().then(() => {
-    res.json({
-      "saved": true,
-      "short_url": newURL.short_url,
-      "orignal_url": newURL.original_url,
-      "suffix": newURL.suffix
-    });
-  });
-
 });
 
-app.get("/api/shorturl/:suffix", (req, res) => {
-  let userGeneratedSuffix = req.params.suffix;
-  ShortURL.find({suffix: userGeneratedSuffix}).then(foundUrls => {
-    let urlForRedirect = foundUrls[0];
-    res.redirect(urlForRedirect.original_url);
-  });
-});
+app.get("/api/shorturl/:short_url", async (req, res) => {
+  const shorturl = req.params.short_url
+  const urlDoc = await urls.findOne({ short_url: +shorturl })
+  res.redirect(urlDoc.url)
+})
 
 
 app.get("/api/whoami", function(req, res){

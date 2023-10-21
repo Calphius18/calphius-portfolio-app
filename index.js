@@ -7,10 +7,11 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var { MongoClient } = require('mongodb');
-var mongoose = require('mongoose');
+var mongoose = require('mongoose')
 const dns = require('dns')
 const urlparser = require('url')
-
+const multer = require('multer')
+const upload = multer()
 const client = new MongoClient(database_uri)
 const db = client.db("urlshortner")
 const urls = db.collection("urls")
@@ -68,6 +69,10 @@ app.get("/exerciseTracker", function (req, res) {
   res.sendFile(__dirname + '/views/exerciseTracker.html');
 });
 
+app.get("/fileMetadata", function (req, res) {
+  res.sendFile(__dirname + '/views/fileMetadata.html');
+});
+
 // your first API endpoint... 
 app.get("/api/hello", function (req, res) {
   console.log({greeting: 'hello API'});
@@ -97,6 +102,14 @@ app.post('/api/shorturl', (req, res) => {
     }
   })
 });
+
+app.post("/api/fileanalyse", upload.single('upfile'), (req, res) => {
+res.json({
+  name: req.file.originalname,
+  type: req.file.mimetype,
+  size: req.file.size
+})
+})
 
 app.get("/api/users", async (re, res) => {
   const users = await User.find({}).select("_id username");

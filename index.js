@@ -15,15 +15,31 @@ const client = new MongoClient(database_uri)
 const db = client.db("urlshortner")
 const urls = db.collection("urls")
 
-
 var port = process.env.PORT || 3000;
+
+const { Schema } = require('mongoose');
 
 mongoose.connect(database_uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
 
+const UserSchema = new Schema({
+username: String,
+});
+
+const User = mongoose.model("User", UserSchema);
+
+const ExerciseSchema = new Schema ({
+  user_id: { type: String, required: true },
+  description: String,
+  duration: Number,
+  date: Date,
+});
+const Exercise = mongoose.model("Exercise", ExerciseSchema);
+
 var cors = require('cors');
+const { count } = require('console');
 app.use(cors({optionsSuccessStatus: 200}));
 
 // http://expressjs.com/en/starter/static-files.html
@@ -48,17 +64,20 @@ app.get("/urlShortenerMicroservice", function (req, res) {
   res.sendFile(__dirname + '/views/urlShortenerMicroservice.html');
 });
 
+app.get("/exerciseTracker", function (req, res) {
+  res.sendFile(__dirname + '/views/exerciseTracker.html');
+});
+
 // your first API endpoint... 
 app.get("/api/hello", function (req, res) {
   console.log({greeting: 'hello API'});
   res.json({greeting: 'hello API'});
 });
 
-
 app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use(bodyParser.json())
-app.post('/api/shorturl', function(req, res) {
+app.post('/api/shorturl', (req, res) => {
   
   const url = req.body.url
   const dnslookup = dns.lookup(urlparser.parse(url).hostname, async (err, address) => {
@@ -79,14 +98,103 @@ app.post('/api/shorturl', function(req, res) {
   })
 });
 
+app.get("/api/users", async (re, res) => {
+  const users = await User.find({}).select("_id username");
+  if (!users) {
+    res.send("No user found");
+  } else {
+    res.json(users);
+  }
+});
+
+app.post('/api/users', async (req, res) => {
+  const userObj = new User({
+    username: req.body.username
+  })
+  try{
+    const user =await userObj.save()
+    res.json(user)
+  }
+ catch(err) {
+  console.log(err)
+ }
+  });
+
+  app.post("/api/users/:_id/exercises", async (req, res) => {
+    const id = req.params._id;
+    const { description, duration, date } = req.body
+
+    try{
+      const user = await User.findById(id)
+      if (!user) {
+        res.send("Couldn't find the user")
+      } else {
+        const exerciseObj = new Exercise({
+          user_id: user._id,
+          description,
+          duration,
+          date: date ? new Date(date) : new Date()
+        })
+        const exercise = await exerciseObj.save()
+        res.json({
+          _id: user._id,
+          username: user.username,
+          description: exercise.description,
+          duration: exercise.duration,
+          date: new Date(exercise.date).toDateString()
+        })
+      }
+    }
+    catch(err){
+      console.log(err)
+      res.send("Error over here")
+    }
+  });
+
+  app.get("/api/users/:_id/logs", async (req, res) => {
+    const { from, to, limit} = req.query;
+    const id = req.params._id;
+    const user = await User.findById(id);
+    if (!user) {
+      res.send("No user found")
+      return;
+    } 
+    dateObj = {}
+    if (from) {
+      dateObj["$gte"] = new Date(from)
+    }
+    if (to) {
+      dateObj["$lte"] = new Date(to)
+    }
+    let filter = {
+      user_id: id
+    }
+    if(from || to) {
+      filter.date = dateObj;
+    }
+    const exercises = await Exercise.find(filter).limit(+limit ?? 500)
+
+const log = exercises.map(e => ({
+  description: e.description,
+  duration: e.duration,
+  date:e.date.toDateString()
+}))
+
+    res.json({
+      username:user.username,
+      count: exercises.length,
+      _id: user._id,
+      log
+    })
+  })
+
 app.get("/api/shorturl/:short_url", async (req, res) => {
   const shorturl = req.params.short_url
   const urlDoc = await urls.findOne({ short_url: +shorturl })
   res.redirect(urlDoc.url)
-})
+});
 
-
-app.get("/api/whoami", function(req, res){
+app.get("/api/whoami", (req, res) => {
   res.json({
     "ipaddress": req.connection.remoteAddress,
     "language": req.headers["accept-language"],
@@ -94,7 +202,7 @@ app.get("/api/whoami", function(req, res){
   });
 });
 
-app.get("/api", function(req, res) {
+app.get("/api", (req, res) => {
   var today = new Date()
   res.json({
    "unix": today.getTime(), 
@@ -102,7 +210,7 @@ app.get("/api", function(req, res) {
   });
 });
 
-app.get("/api/:date_string", function (req, res) {
+app.get("/api/:date_string", (req, res) => {
 let dateString = req.params.date_string;
 
 if (parseInt(dateString) > 10000) {

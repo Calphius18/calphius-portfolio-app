@@ -79,6 +79,14 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+app.post("/api/fileanalyse", upload.single('upfile'), (req, res) => {
+  res.json({
+    name: req.file.originalname,
+    type: req.file.mimetype,
+    size: req.file.size
+  })
+});
+
 app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use(bodyParser.json())
@@ -102,14 +110,6 @@ app.post('/api/shorturl', (req, res) => {
     }
   })
 });
-
-app.post("/api/fileanalyse", upload.single('upfile'), (req, res) => {
-res.json({
-  name: req.file.originalname,
-  type: req.file.mimetype,
-  size: req.file.size
-})
-})
 
 app.get("/api/users", async (re, res) => {
   const users = await User.find({}).select("_id username");

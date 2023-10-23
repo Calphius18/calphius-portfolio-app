@@ -3,17 +3,28 @@
 <html>
    <head>
       <title>File Metadata</title>
-      <link rel="shortcut icon" href="https://cdn.freecodecamp.org/universal/favicons/favicon-32x32.png" type="image/x-icon"/>
-      <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
-      <link href="/public/style.css" rel="stylesheet" type="text/css">
+      <link rel="shortcut icon" href="https://cdn.freecodecamp.org/universal/favicons/favicon-32x32.png" type="image/x-icon"/>      
 
 <style>
 body {
   font-family: 'Roboto', sans-serif;
-  font-size: 16px;
-  color: #222;
-  background-color: #ECF0F1;
-  text-align: center;
+	font-size: 16px;
+	color: #222;
+	background-image: url(https://media.licdn.com/dms/image/C4D12AQHBDLwZJNaCWw/article-cover_image-shrink_720_1280/0/1614662032048?e=2147483647&v=beta&t=aqL0YP8q2Pr4lONSA7ylS7KtYbL8VUbEOeIqwpWcoJ8);
+	background-size: cover;
+	text-align: center;
+	line-height: 1.4em;
+}
+
+h3 {
+  margin-top: 30px;
+  color: #1d3b20;
+}
+
+hr {
+	margin: 25px;
+	height: 2px;
+	background-color: blue;
 }
 
 .container {
@@ -25,25 +36,44 @@ body {
   margin-top: 60px;
 }
 
+p {
+  font-weight: bold;
+}
+
 a {
-  color: #2574A9;
+	color: #131f6e;
 }
 
 input {
   display: block;
   position: relative;
   margin: 10px auto;
+  font-weight: bold;
+  color: #2574A9;
 }
 
 input#button {
   width: 230px;
 }
 
+.footer {
+	margin-top: 20%;
+	font-size: large;
+	font-weight: bolder;
+	text-decoration:none;
+}
+
+.footer-text {
+	text-decoration:none;
+	color: #07023d;
+	font-size: 25px;
+}
+
 .view {
   position:relative;
   margin: auto;
   margin-top: 40px;
-  border: 1px  solid  #aaa;
+  border: 3px  solid  #aaa;
   padding: 20px;
   width: 60%;
   min-width: 400px;
@@ -54,8 +84,8 @@ input#button {
 
    <body>
       <div class="container">
-        <h2>API Project: File Metadata Microservice</h2>
-
+        <h1>File Metadata Microservice</h1>
+<hr/>
         <h3>Usage:</h3>
         <p>
           Please Upload a File ...
@@ -68,11 +98,12 @@ input#button {
           </form>
         </div>
       </div>
+
       <div class="footer">
         <p>
-          by 
-          <a href="http://www.freecodecamp.com">freeCodeCamp</a>
+          By <a class = "footer-text" href="https://github.com/Calphius18">Fagbemi Babafemitan</a>
         </p>
       </div>
-   </body>
+
+      </body>
 </html>

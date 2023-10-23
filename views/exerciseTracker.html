@@ -23,6 +23,12 @@ h1 {
   
 }
 
+hr {
+	margin: 25px;
+	height: 3px;
+	background-color: blue;
+}
+
 p {
   max-width: 900px;
 }
@@ -73,6 +79,7 @@ code {
   <body>
     <div class="container">
       <h1>Exercise tracker</h1>
+      <hr/>
       <form action="/api/users" method="post">
         <h3>Create a New User</h3>
         <p><code>POST /api/users</code></p>
